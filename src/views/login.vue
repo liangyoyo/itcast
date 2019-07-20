@@ -14,13 +14,14 @@
            <el-input v-model="loginForm.password" placeholder="密码" prefix-icon="myicon myicon-key" ></el-input>
          </el-form-item>
          <el-form-item>
-           <el-button type="primary" class="login-btn">登录</el-button>
+           <el-button type="primary" class="login-btn" @click="login">登录</el-button>
          </el-form-item>
         </el-form>
       </div>
     </div>
 </template>
 <script>
+import { login } from '@/api/user_index.js'
 export default {
   data () {
     return {
@@ -35,14 +36,41 @@ export default {
         ],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 3, max: 5, message: '长度在 4 到 10 个字符', trigger: 'blur' }
+          { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
         ]
       }
     }
   },
   methods: {
     login () {
-
+      this.$refs.loginForm.validate((valid) => {
+        if (valid) {
+          login(this.loginForm).then(res => {
+            console.log(res)
+            if (res.data.meta.status === 200) {
+              this.$router.push({ name: 'home' })
+            } else {
+              this.$message({
+                message: res.data.meta.msg,
+                type: 'error'
+              })
+            }
+          }).catch(err => {
+            console.log(err)
+            this.$message({
+              message: '登陆失败',
+              type: 'error'
+            })
+          })
+        } else {
+          this.$message({
+            message: '数据输入不合法',
+            type: 'error'
+          })
+          // 只有return false才能阻止请求
+          return false
+        }
+      })
     }
   }
 }

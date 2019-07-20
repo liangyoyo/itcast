@@ -4,6 +4,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 // 引入所要映射的组件
 import Login from '@/views/login.vue'
+import Home from '@/views/home.vue'
 // 使用
 Vue.use(VueRouter)
 var router = new VueRouter({
@@ -17,6 +18,11 @@ var router = new VueRouter({
       name: 'login',
       path: '/login',
       component: Login
+    },
+    {
+      name: 'home',
+      path: '/home',
+      component: Home
     }
   ]
 })
