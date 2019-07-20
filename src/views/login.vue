@@ -2,7 +2,11 @@
     <div class="login">
       <div class="container">
           <img src="../assets/avatar.jpg" alt="" class="avatar">
+          <!-- - :model：当前表单所绑定的属性对象，对象中的成员由表单元素的数量和作用来决定
+               - :rules="rules"：表单的验证规则
+               - ref="ruleForm"：表单标识 -->
         <el-form :model="loginForm" :rules="rules" ref="loginForm" class="demo-ruleForm">
+        <!--  prop：为了配合验证规则，这个prop的属性值就对应着验证规则的名称 -->
          <el-form-item prop="username">
            <el-input v-model="loginForm.username" placeholder="用户名" prefix-icon="myicon myicon-user" ></el-input>
          </el-form-item>
@@ -24,12 +28,21 @@ export default {
         username: '',
         password: ''
       },
+      // rules是一个对象，书写在data里面，他里面的属性是一个数组
       rules: {
         username: [
-          { required: true, message: '请输入活动名称', trigger: 'blur' },
-          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+          { required: true, message: '请输入用户名', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 3, max: 5, message: '长度在 4 到 10 个字符', trigger: 'blur' }
         ]
       }
+    }
+  },
+  methods: {
+    login () {
+
     }
   }
 }
