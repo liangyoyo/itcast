@@ -5,6 +5,7 @@ import VueRouter from 'vue-router'
 // 引入所要映射的组件
 import Login from '@/views/login.vue'
 import Home from '@/views/home.vue'
+import Welcome from '@/views/welcome'
 // 使用
 Vue.use(VueRouter)
 var router = new VueRouter({
@@ -22,7 +23,16 @@ var router = new VueRouter({
     {
       name: 'home',
       path: '/home',
-      component: Home
+      component: Home,
+      // 添加路由重定向
+      redirect: { name: 'welcome' },
+
+      children: [
+        { name: 'welcome',
+          path: 'welcome',
+          component: Welcome
+        }
+      ]
     }
   ]
 })

@@ -48,6 +48,9 @@ export default {
           login(this.loginForm).then(res => {
             console.log(res)
             if (res.data.meta.status === 200) {
+              // localStorage.setItem(key,token) 跳转之后先保存token到本地存储
+              localStorage.setItem('itcast_token', res.data.data.token)
+              // 进行路由的跳转
               this.$router.push({ name: 'home' })
             } else {
               this.$message({
