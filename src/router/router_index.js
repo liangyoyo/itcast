@@ -6,6 +6,7 @@ import VueRouter from 'vue-router'
 import Login from '@/views/login.vue'
 import Home from '@/views/home.vue'
 import Welcome from '@/views/welcome'
+import User from '@/views/users/users.vue'
 // 使用
 Vue.use(VueRouter)
 var router = new VueRouter({
@@ -28,9 +29,14 @@ var router = new VueRouter({
       redirect: { name: 'welcome' },
 
       children: [
+
         { name: 'welcome',
           path: 'welcome',
           component: Welcome
+        },
+        { name: 'users',
+          path: 'users',
+          component: User
         }
       ]
     }
