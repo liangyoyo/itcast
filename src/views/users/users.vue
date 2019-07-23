@@ -27,19 +27,29 @@
         <el-table-column property="mobile" label="电话"></el-table-column>
         <el-table-column label="用户状态" width="80">
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949" @change='changeState(scope.row.id,scope.row.mg_state)'> </el-switch>
+            <el-switch
+              v-model="scope.row.mg_state"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              @change="changeState(scope.row.id,scope.row.mg_state)"
+            ></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-tooltip class="item" effect="dark" content="编辑" placement="top">
-              <el-button type="primary" icon="el-icon-edit" @click="showEditDialog(scope.row)"></el-button>
+            <el-tooltip class="item" effect="light" content="编辑" placement="top">
+              <el-button type="primary" icon="el-icon-edit" round @click="showEditDialog(scope.row)"></el-button>
             </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="删除" placement="top">
-              <el-button type="danger" icon="el-icon-delete" @click="delUser(scope.row.id)"></el-button>
+            <el-tooltip class="item" effect="light" content="删除" placement="top" >
+              <el-button type="danger" icon="el-icon-delete" round  @click="delUser(scope.row.id)"></el-button>
             </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="分配角色" placement="top">
-              <el-button type="warning" icon="el-icon-check"></el-button>
+            <el-tooltip
+              class="item"
+              effect="light"
+              content="分配角色"
+              placement="top"
+            >
+              <el-button type="warning" icon="el-icon-check" round  @click="showgrantUserRole(scope.row)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -95,6 +105,28 @@
         <el-button type="primary" @click="editsubmit">确 定</el-button>
       </div>
     </el-dialog>
+    <!-- 分配角色 -->
+    <el-dialog title="分配角色" :visible.sync="grantdialogFormVisible">
+      <el-form :model="grantform">
+        <el-form-item label="用户名" width="20">
+         <span>{{grantform.username}}</span>
+        </el-form-item>
+        <el-form-item label="角色" width="100">
+          <el-select v-model="grantform.rid" clearable placeholder="请选择">
+            <el-option
+              v-for="item in roleList"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click=" grantdialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="grantrole">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -103,14 +135,17 @@ import {
   addUser,
   editUser,
   delUserById,
-  updateUserState
+  updateUserState,
+  grantUserRole
 } from '@/api/user_index.js'
+import { getAllRoleList } from '@/api/role_index.js'
 export default {
   data () {
     return {
       value2: true,
       adddialogFormVisible: false,
       total: 0,
+      userList: [],
       userobj: {
         query: '',
         pagenum: 1,
@@ -128,6 +163,13 @@ export default {
         username: '',
         email: '',
         mobile: ''
+      },
+      roleList: [],
+      grantdialogFormVisible: false,
+      grantform: {
+        username: '',
+        rid: '',
+        id: ''
       },
       // 表单验证规则
       rules: {
@@ -159,8 +201,7 @@ export default {
             trigger: 'blur'
           }
         ]
-      },
-      userList: []
+      }
     }
   },
   methods: {
@@ -249,7 +290,6 @@ export default {
       this.editform.email = row.email
       this.editform.mobile = row.mobile
       this.editform.id = row.id
-      console.log(row)
     },
     // 删除用户
     delUser (id) {
@@ -259,19 +299,25 @@ export default {
         type: 'warning'
       })
         .then(() => {
-          delUserById(id).then(res2 => {
-            if (res2.data.meta.status === 200) {
-              this.$message({
-                type: 'success',
-                message: '删除成功!'
-              })
-              // Math.celi（）向上取整
-              this.userobj.pagenum = Math.ceil((this.total - 1) / this.userobj.pagesize) < this.userobj.pagenum ? --this.userobj.pagenum : this.userobj.pagenum
-              this.init()
-            }
-          }).catch(err2 => {
-            console.log(err2)
-          })
+          delUserById(id)
+            .then(res2 => {
+              if (res2.data.meta.status === 200) {
+                this.$message({
+                  type: 'success',
+                  message: '删除成功!'
+                })
+                // Math.celi（）向上取整
+                this.userobj.pagenum =
+                  Math.ceil((this.total - 1) / this.userobj.pagesize) <
+                  this.userobj.pagenum
+                    ? --this.userobj.pagenum
+                    : this.userobj.pagenum
+                this.init()
+              }
+            })
+            .catch(err2 => {
+              console.log(err2)
+            })
         })
         .catch(() => {
           this.$message({
@@ -281,8 +327,8 @@ export default {
         })
     },
     // 更新用户状态
-    async changeState (uid, type) {
-      let res = await updateUserState(uid, type)
+    async changeState (row) {
+      let res = await updateUserState(row.id, row.mg_state)
       if (res.data.meta.status === 200) {
         this.$message({
           type: 'success',
@@ -290,25 +336,59 @@ export default {
         })
       }
     },
+    // 获取默认数据
+    showgrantUserRole (row) {
+      this.grantdialogFormVisible = true
+      this.grantform.id = row.id
+      this.grantform.rid = row.rid
+      this.grantform.username = row.username
+      console.log(row)
+    },
+    // 分配角色
+    async grantrole () {
+      if (!this.grantform.rid) {
+        this.$message({
+          type: 'warning',
+          message: '请选择一个角色'
+        })
+      } else {
+        let res = await grantUserRole(this.grantform)
+        if (res.data.meta.status === 200) {
+          this.$message({
+            type: 'success',
+            message: '角色设置成功'
+          })
+          this.grantdialogFormVisible = false
+          this.init()
+        }
+      }
+    },
     // 数据初始化
     init () {
       getAllUserList(this.userobj)
         .then(res => {
-          console.log(res)
           if (res.data.meta.status === 200) {
             this.userList = res.data.data.users
+            // 获取总记录数
             this.total = res.data.data.total
           }
         })
         .catch(err => {
           console.log(err)
         })
+    },
+    // 获取所有角色数据
+    async roleListInit () {
+      let res = await getAllRoleList()
+      this.roleList = res.data.data
     }
   },
+
   mounted () {
     this.init()
+    this.roleListInit()
   }
 }
 </script>
-<style lang="less" scoped>
+<style lang="less">
 </style>
