@@ -5,7 +5,7 @@
           <!-- - :model：当前表单所绑定的属性对象，对象中的成员由表单元素的数量和作用来决定
                - :rules="rules"：表单的验证规则
                - ref="ruleForm"：表单标识 -->
-        <el-form :model="loginForm" :rules="rules" ref="loginForm" class="demo-ruleForm">
+        <el-form :model="loginForm" :rules="rules" ref="loginForm" class="demo-ruleForm" @keydown.enter="login">
         <!--  prop：为了配合验证规则，这个prop的属性值就对应着验证规则的名称 -->
          <el-form-item prop="username">
            <el-input v-model="loginForm.username" placeholder="用户名" prefix-icon="myicon myicon-user" ></el-input>
