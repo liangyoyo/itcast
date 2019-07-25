@@ -7,6 +7,8 @@ import Login from '@/views/login.vue'
 import Home from '@/views/home.vue'
 import Welcome from '@/views/welcome'
 import User from '@/views/users/users.vue'
+import Roles from '@/views/role/roles.vue'
+import Rrights from '@/views/role/rights.vue'
 // 使用
 Vue.use(VueRouter)
 var router = new VueRouter({
@@ -37,6 +39,14 @@ var router = new VueRouter({
         { name: 'users',
           path: 'users',
           component: User
+        },
+        { name: 'roles',
+          path: 'roles',
+          component: Roles
+        },
+        { name: 'rights',
+          path: 'rights',
+          component: Rrights
         }
       ]
     }

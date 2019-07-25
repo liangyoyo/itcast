@@ -1,0 +1,138 @@
+<template>
+  <div class="role">
+    <!-- 面包屑导航 -->
+    <el-breadcrumb separator="/">
+      <el-breadcrumb-item :to="{ path: '/login' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>权限管理</el-breadcrumb-item>
+      <el-breadcrumb-item>角色列表</el-breadcrumb-item>
+    </el-breadcrumb>
+    <!-- 角色列表展示页 -->
+    <el-table :data="roleList" style="width: 100%">
+      <!-- 展开结构 -->
+      <el-table-column type="expand">
+        <template slot-scope="scope">
+          <el-row
+            v-for="first in scope.row.children"
+            :key="first.id"
+            style="margin-bottom:10px;border-bottom:1px dashed #ccc"
+          >
+            <el-col :span="4">
+              <el-tag
+                closable
+                type="success"
+                @close="delRightById(scope.row,first.id)"
+              >{{first.authName}}</el-tag>
+            </el-col>
+            <el-col :span="20">
+              <el-row v-for="second in first.children" :key="second.id">
+                <el-col :span="4">
+                  <el-tag
+                    closable
+                    type="success"
+                    @close="delRightById(scope.row,second.id)"
+                  >{{second.authName}}</el-tag>
+                </el-col>
+                <el-col :span="20">
+                  <el-tag
+                    closable
+                    type="warning"
+                    v-for="third in second.children"
+                    :key="third.id"
+                    style="margin:0px 10px 5px 0px"
+                    @close="delRightById(scope.row,third.id)"
+                  >{{third.authName}}</el-tag>
+                </el-col>
+              </el-row>
+            </el-col>
+          </el-row>
+          <el-col :span="24" v-show="scope.row.children.length == 0">没有任何的权限，请先分配！！</el-col>
+        </template>
+      </el-table-column>
+      <el-table-column type="index" width="50"></el-table-column>
+      <el-table-column label="角色名称" prop="roleName"></el-table-column>
+      <el-table-column label="描述" prop="roleDesc"></el-table-column>
+      <el-table-column label="操作">
+        <template slot-scope="scope">
+          <el-tooltip class="item" effect="light" content="编辑" placement="top">
+            <el-button type="primary" icon="el-icon-edit" round></el-button>
+          </el-tooltip>
+          <el-tooltip class="item" effect="light" content="删除" placement="top">
+            <el-button type="danger" icon="el-icon-delete" round></el-button>
+          </el-tooltip>
+          <el-tooltip
+            class="item"
+            effect="light"
+            content="分配角色"
+            placement="top"
+          >
+            <el-button type="warning" icon="el-icon-check" round  @click="showGrantDialog"></el-button>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!-- 角色授权 -->
+    <el-dialog title="角色授权" :visible.sync="grantDialogTableVisible">
+      <el-tree
+        :data="rightList"
+        show-checkbox
+        node-key="id"
+        :default-expand-all='true'
+        :default-checked-keys="checkedArr"
+        :props="defaultProps"
+      ></el-tree>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="grantdialogFormVisible = false">取 消</el-button>
+        <el-button type="primary">确 定</el-button>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+<script>
+import { getAllRoleList, delRightByRoleId } from '@/api/role_index.js'
+import { getAllRightList } from '@/api/right_index.js'
+export default {
+  data () {
+    return {
+      roleList: [],
+      rightList: [],
+      checkedArr: [],
+      defaultProps: {
+        children: 'children',
+        label: 'authName'
+      },
+      grantDialogTableVisible: false
+    }
+  },
+  methods: {
+    // 角色初始化
+    async roleListInit () {
+      let res = await getAllRoleList()
+      this.roleList = res.data.data
+    },
+    // 点击删除权限
+    async delRightById (row, rightId) {
+      let res = await delRightByRoleId(row.id, rightId)
+      if (res.data.meta.status === 200) {
+        this.$message({
+          type: 'success',
+          message: res.data.meta.msg
+        })
+        // 刷新当前展开行的数据对象
+        row.children = res.data.data
+      }
+    },
+    // 树形组件的动态数据加载
+    async showGrantDialog () {
+      this.grantDialogTableVisible = true
+      let res = await getAllRightList('tree')
+      this.rightList = res.data.data
+      console.log(res)
+    }
+  },
+  mounted () {
+    this.roleListInit()
+  }
+}
+</script>
+<style lang="less" scoped>
+</style>

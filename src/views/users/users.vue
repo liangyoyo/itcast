@@ -5,6 +5,7 @@
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
+    <!-- 搜索框 -->
     <!-- .native可以监听组件根元素的原生事件 我们引入一个原生标签(div、li、p......)的概念，那么原生事件（存在于标准当中的如'click','mouseover'）应该绑定到原生标签上。自定义组件上应该绑定自定义事件。如果我们想给自定义组件标签（注意是标签，不是内部元素）绑定原生事件（使原生事件生效于组件template的rootelement上）怎么办，加.native修饰符。
     组件为//div为rootelement，里面的为内部元素,你可以试试，给自定义组件标签绑定js标准的原生事件是不会生效的，所以需要加native修饰符。-->
     <div style="margin-top: 15px;">
@@ -19,6 +20,7 @@
       </el-input>
       <el-button type="success" plain @click="adddialogFormVisible =true">添加用户</el-button>
     </div>
+    <!-- 数据列表页 -->
     <template>
       <el-table :data="userList" border style="width: 100% ;margin-top:20px">
         <el-table-column type="index" width="50"></el-table-column>

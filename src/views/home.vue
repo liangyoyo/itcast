@@ -33,13 +33,13 @@
               <i class="el-icon-location"></i>
               <span>权限管理</span>
             </template>
-            <el-menu-item index="2-3">
+            <el-menu-item index="/home/roles">
               <template slot="title">
                 <i class="el-icon-location"></i>
                 <span>角色列表</span>
               </template>
             </el-menu-item>
-            <el-menu-item index="2-4">
+            <el-menu-item index="/home/rights">
               <template slot="title">
                 <i class="el-icon-location"></i>
                 <span>权限列表</span>
@@ -52,7 +52,7 @@
         <el-header>
           <span class="toggle-btn myicon myicon-menu" @click="iscollapse=!iscollapse"></span>
           <span class="system-title">电商后台管理系统</span>
-          <a href="javascript:;" class="exit">退出</a>
+          <a href="/login" class="exit">退出</a>
         </el-header>
         <el-main>
            <router-view></router-view>
