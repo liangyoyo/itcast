@@ -10,3 +10,10 @@ export const delRightByRoleId = (roleId, rightId) => {
     method: 'delete'
   })
 }
+export const addRole = (data) => {
+  return axios({
+    url: `roles`,
+    method: 'post',
+    data: data
+  })
+}

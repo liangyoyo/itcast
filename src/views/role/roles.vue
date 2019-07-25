@@ -6,6 +6,22 @@
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>角色列表</el-breadcrumb-item>
     </el-breadcrumb>
+    <!--添加角色 -->
+    <el-button type="text" @click="adddialogFormVisible = true">添加角色</el-button>
+    <el-dialog title="收货地址" :visible.sync="adddialogFormVisible">
+      <el-form :model="addForm" :label-width="'100px'">
+        <el-form-item label="角色名称">
+          <el-input v-model="addForm.roleName" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述">
+          <el-input v-model="addForm.roleDesc" auto-complete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="adddialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="adddialogFormVisible = false">确 定</el-button>
+      </div>
+    </el-dialog>
     <!-- 角色列表展示页 -->
     <el-table :data="roleList" style="width: 100%">
       <!-- 展开结构 -->
@@ -59,37 +75,39 @@
           <el-tooltip class="item" effect="light" content="删除" placement="top">
             <el-button type="danger" icon="el-icon-delete" round></el-button>
           </el-tooltip>
-          <el-tooltip
-            class="item"
-            effect="light"
-            content="分配角色"
-            placement="top"
-          >
-            <el-button type="warning" icon="el-icon-check" round  @click="showGrantDialog"></el-button>
+          <el-tooltip class="item" effect="light" content="分配角色" placement="top">
+            <el-button
+              type="warning"
+              icon="el-icon-check"
+              round
+              @click="showGrantDialog(scope.row)"
+            ></el-button>
           </el-tooltip>
         </template>
       </el-table-column>
     </el-table>
     <!-- 角色授权 -->
-    <el-dialog title="角色授权" :visible.sync="grantDialogTableVisible">
+    <el-dialog title="角色授权" :visible.sync="grantdialogFormVisible">
       <el-tree
+        ref="mytree"
         :data="rightList"
         show-checkbox
         node-key="id"
-        :default-expand-all='true'
+        :default-expand-all="true"
         :default-checked-keys="checkedArr"
         :props="defaultProps"
+        :model="grantform"
       ></el-tree>
       <div slot="footer" class="dialog-footer">
         <el-button @click="grantdialogFormVisible = false">取 消</el-button>
-        <el-button type="primary">确 定</el-button>
+        <el-button type="primary" @click="grantSubmit">确 定</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 <script>
 import { getAllRoleList, delRightByRoleId } from '@/api/role_index.js'
-import { getAllRightList } from '@/api/right_index.js'
+import { getAllRightList, grantRightById } from '@/api/right_index.js'
 export default {
   data () {
     return {
@@ -100,7 +118,16 @@ export default {
         children: 'children',
         label: 'authName'
       },
-      grantDialogTableVisible: false
+      grantdialogFormVisible: false,
+      grantform: {
+        roleId: '',
+        rids: ''
+      },
+      adddialogFormVisible: false,
+      addForm: {
+        roleName: '',
+        roleDesc: ''
+      }
     }
   },
   methods: {
@@ -122,11 +149,52 @@ export default {
       }
     },
     // 树形组件的动态数据加载
-    async showGrantDialog () {
-      this.grantDialogTableVisible = true
+    async showGrantDialog (row) {
+      this.grantdialogFormVisible = true
+      this.grantform.roleId = row.id
       let res = await getAllRightList('tree')
+      console.log(row)
       this.rightList = res.data.data
+      this.checkedArr.length = 0
+      // 嵌套循环
+      if (row.children && row.children.length > 0) {
+        row.children.forEach(first => {
+          if (first.children && first.children.length > 0) {
+            first.children.forEach(second => {
+              if (second.children && second.children.length > 0) {
+                second.children.forEach(third => {
+                  this.checkedArr.push(third.id)
+                })
+              }
+            })
+          }
+        })
+      }
+    },
+    async grantSubmit () {
+      let arr = this.$refs.mytree.getCheckedNodes()
+      var temp = []
+      // 遍历数组，对数组进行拼接
+      arr.forEach(item => {
+        temp.push(item.id + ',' + item.pid)
+      })
+      var tempStr = temp.join(',')
+      var tempArr = tempStr.split(',')
+      // 数组去重
+      var finnalArr = [...new Set(tempArr)]
+      console.log(finnalArr.join(','))
+      this.grantform.rids = finnalArr.join(',')
+      // 调用接口方法实现权限的分配
+      let res = await grantRightById(this.grantform)
       console.log(res)
+      if (res.data.meta.status === 200) {
+        this.$message({
+          type: 'success',
+          message: res.data.meta.msg
+        })
+      }
+      this.grantdialogFormVisible = false
+      this.roleListInit()
     }
   },
   mounted () {
