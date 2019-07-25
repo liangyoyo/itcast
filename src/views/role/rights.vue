@@ -8,11 +8,11 @@
     </el-breadcrumb>
     <!-- 列表区域 -->
     <template>
-      <el-table :data="rightList" style="width: 100%">
+      <el-table :data="rightList" style="width: 100%" border>
         <el-table-column type="index" width="50"></el-table-column>
         <el-table-column prop="authName" label="权限名称" width="180"></el-table-column>
         <el-table-column prop="path" label="路径" width="180"></el-table-column>
-        <el-table-column prop='' label="层级">
+        <el-table-column prop='' label="层级" >
           <template slot-scope="scope">{{scope.row.level | levelForm}}</template>
         </el-table-column>
       </el-table>

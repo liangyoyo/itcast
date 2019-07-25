@@ -7,9 +7,9 @@
       <el-breadcrumb-item>角色列表</el-breadcrumb-item>
     </el-breadcrumb>
     <!--添加角色 -->
-    <el-button type="text" @click="adddialogFormVisible = true">添加角色</el-button>
-    <el-dialog title="收货地址" :visible.sync="adddialogFormVisible">
-      <el-form :model="addForm" :label-width="'100px'">
+    <el-button  type="primary" round style="margin-bottom:15px;" @click="adddialogFormVisible = true">添加角色</el-button>
+    <el-dialog title="添加角色" :visible.sync="adddialogFormVisible">
+      <el-form :model="addForm" :label-width="'100px'" :rules="rules" ref="addForm">
         <el-form-item label="角色名称">
           <el-input v-model="addForm.roleName" auto-complete="off"></el-input>
         </el-form-item>
@@ -19,11 +19,11 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="adddialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="adddialogFormVisible = false">确 定</el-button>
+        <el-button type="primary" @click="addRoleList">确 定</el-button>
       </div>
     </el-dialog>
     <!-- 角色列表展示页 -->
-    <el-table :data="roleList" style="width: 100%">
+    <el-table :data="roleList" style="width: 100%" border>
       <!-- 展开结构 -->
       <el-table-column type="expand">
         <template slot-scope="scope">
@@ -106,7 +106,7 @@
   </div>
 </template>
 <script>
-import { getAllRoleList, delRightByRoleId } from '@/api/role_index.js'
+import { getAllRoleList, delRightByRoleId, addRole } from '@/api/role_index.js'
 import { getAllRightList, grantRightById } from '@/api/right_index.js'
 export default {
   data () {
@@ -127,6 +127,16 @@ export default {
       addForm: {
         roleName: '',
         roleDesc: ''
+      },
+      rules: {
+        roleName: [
+          { required: true, message: '请输入角色名称', trigger: 'blur' },
+          { min: 2, max: 8, message: '长度在 2 到 8 个字符', trigger: 'blur' }
+        ],
+        roleDesc: [
+          { required: true, message: '请输入角色描述', trigger: 'blur' },
+          { min: 2, max: 10, message: '长度在 2 到 10个字符', trigger: 'blur' }
+        ]
       }
     }
   },
@@ -171,6 +181,7 @@ export default {
         })
       }
     },
+    // 角色授权
     async grantSubmit () {
       let arr = this.$refs.mytree.getCheckedNodes()
       var temp = []
@@ -194,6 +205,19 @@ export default {
         })
       }
       this.grantdialogFormVisible = false
+      this.roleListInit()
+    },
+    // 添加角色
+    async addRoleList () {
+      let res = await addRole(this.addForm)
+      console.log(res)
+      if (res.data.meta.status === 200) {
+        this.$message({
+          type: 'success',
+          message: res.data.meta.msg
+        })
+      }
+      this.adddialogFormVisible = false
       this.roleListInit()
     }
   },
