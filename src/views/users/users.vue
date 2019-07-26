@@ -329,8 +329,10 @@ export default {
         })
     },
     // 更新用户状态
-    async changeState (row) {
-      let res = await updateUserState(row.id, row.mg_state)
+    async changeState (id, type) {
+      console.log(id, type)
+      let res = await updateUserState(id, type)
+      console.log(res)
       if (res.data.meta.status === 200) {
         this.$message({
           type: 'success',

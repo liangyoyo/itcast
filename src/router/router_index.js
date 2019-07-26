@@ -9,6 +9,10 @@ import Welcome from '@/views/welcome'
 import User from '@/views/users/users.vue'
 import Roles from '@/views/role/roles.vue'
 import Rrights from '@/views/role/rights.vue'
+import Goods from '@/views/goods/goods.vue'
+import List from '@/views/goods/list.vue'
+import Add from '@/views/goods/add.vue'
+
 // 使用
 Vue.use(VueRouter)
 var router = new VueRouter({
@@ -47,6 +51,21 @@ var router = new VueRouter({
         { name: 'rights',
           path: 'rights',
           component: Rrights
+        },
+        { name: 'goods',
+          path: 'goods',
+          component: Goods,
+          redirect: { name: 'list' },
+          children: [
+            { name: 'list',
+              path: 'list',
+              component: List
+            },
+            { name: 'add',
+              path: 'add',
+              component: Add
+            }
+          ]
         }
       ]
     }

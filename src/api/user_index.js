@@ -39,6 +39,8 @@ export const delUserById = (id) => {
   })
 }
 export const updateUserState = (uid, type) => {
+  console.log(123444444444)
+  console.log(uid, type)
   return axios({
     url: `users/${uid}/state/${type}`,
     method: 'put'
